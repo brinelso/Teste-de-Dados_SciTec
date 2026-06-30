@@ -2,20 +2,17 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+from database import carregar_dados
+
 st.set_page_config(
     page_title="Dashbord de Base Criminal",
     layout="wide"
 )
 
-CAMINHO_CSV = "Projeto/crime_rate_safety_analysis.csv"
-@st.cache_data
-def carregar_dados(caminho):
-    df = pd.read_csv(caminho)
-    return df
 
 
 def mostrar_dashboard():
-    df = carregar_dados(CAMINHO_CSV)
+    df = carregar_dados()
 
     st.sidebar.header("Filtros")
 

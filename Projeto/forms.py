@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
-from dashboard import CAMINHO_CSV, carregar_dados
+from dashboard import carregar_dados
+import pygsheets
+
+URL_PLANILHA = "https://docs.google.com/spreadsheets/d/136DaNqFF7CKgLz1YM1nI-eB1v1Uf3rEdyvN6IJ36yTo/"
 
 DIAS_SEMANA = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 ESTACOES = ['Summer', 'Autumn', 'Winter', 'Spring']
@@ -129,10 +132,24 @@ def mostrar_formulario():
             }])
 
             try:
-                colunas_originais = pd.read_csv(CAMINHO_CSV, nrows = 0).columns.to_list()
-                novo_registro = novo_registro[colunas_originais]
-                novo_registro.to_csv(CAMINHO_CSV, mode = 'a', header = False, index = False)
+
+                gc = pygsheets.authorize(
+                    service_file="chave_de_acesso.json"
+                )
+
+                planilha = gc.open_by_url(URL_PLANILHA)
+
+                aba = planilha.worksheet_by_title(
+                    "crime_rate_safety_analysis"
+                )
+
+                aba.append_table(
+                    novo_registro.values.tolist()[0]
+                )
+
                 carregar_dados.clear()
-                st.success('Registro adicionado com sucesso!')
+
+                st.success("Registro adicionado com sucesso!")
+
             except Exception as erro:
-                st.error(f'Não foi possível salvar o registro, pois: {erro}')
+                st.error(f"Não foi possível salvar: {erro}")
